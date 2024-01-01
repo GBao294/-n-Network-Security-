@@ -7,7 +7,7 @@ import SignIn from './Components/Login';
 import { Content } from './Components/Content';
 import { Settings } from './Components/Settings';
 import { Upload } from './Components/Upload.js';
-import "./ImageDatabase.js";
+// import "./ImageDatabase.js";
 
 function App() {
 

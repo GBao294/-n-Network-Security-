@@ -35,21 +35,21 @@ function Upload() {
     if (selectedImage) {
       const imageName = selectedImage.name;
       const storageRef = ref(storage, `IMG-netsec/${imageName}`);
-      
       uploadBytes(storageRef, selectedImage)
-        .then((snapshot) => {
+        .then(() => {
+          if(content !== ""){
           alert("Tệp tin đã được tải lên thành công!");
           getDownloadURL(storageRef)
-            .then((url) => {
+          .then((url) => {
                 const newImg = {
                     imgSrc: url,
                     content: content,
                 };
                 push(imgDatabase, newImg);
             })
-            .catch((error) => {
-                console.log("Lỗi khi lấy đường dẫn tới ảnh:", error);
-            });
+          }else{
+            alert("Vui lòng nhập nội dung cho ảnh!");
+          }
         })
         .catch((error) => {
             alert("Lỗi trong quá trình tải lên tệp tin:", error);
