@@ -6,6 +6,7 @@ import {Register} from './Components/Register';
 import SignIn from './Components/Login';
 import { Content } from './Components/Content';
 import { Settings } from './Components/Settings';
+import { Upload } from './Components/Upload.js';
 import "./ImageDatabase.js";
 
 function App() {
@@ -27,6 +28,13 @@ function App() {
       {<>
       <TopMenu />
       <Settings />
+      </>
+      } />
+
+      <Route path="/Upload" element=
+      {<>
+      <TopMenu />
+      <Upload />
       </>
       } />
 

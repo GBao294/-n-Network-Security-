@@ -32,9 +32,9 @@ function Content() {
         {Images && Images.map((image, index) => (
             <tr key={index}>
               <td>
-                <img className="picture" src={image.imgSrc} alt="Ảnh" />
+                <img className="picture" src={image?.imgSrc} alt="Ảnh" />
               </td>
-              <td className="rowContent">{image.content}</td>
+              <td className="rowContent">{image?.content}</td>
             </tr>
           ))}
         </tbody>

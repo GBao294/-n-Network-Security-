@@ -52,12 +52,12 @@ function Settings() {
         {Images && Images.map((image, index) => (
             <tr key={index}>
               <td>
-                <img className="picture" src={image.imgSrc} alt="Ảnh" />
+                <img className="picture" src={image?.imgSrc} alt="Ảnh" />
               </td>
-              <td className="rowContent">{image.content}</td>
+              <td className="rowContent">{image?.content}</td>
               <td>
                 <button className="btnDownload" onClick={() => handleDownload(image?.imgSrc)}>Download</button>
-                <button className="btnDelete" onClick={() => handleDelete(image.id)}>Delete</button>
+                <button className="btnDelete" onClick={() => handleDelete(image?.id)}>Delete</button>
               </td>
             </tr>
           ))}

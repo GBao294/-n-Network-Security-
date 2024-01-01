@@ -35,8 +35,9 @@
     margin-left: 20px;
 }
 #infoTable .rowContent {
-    font-size: 18px;
+    font-size: 20px;
     padding-left: 20px;
+    font-family: 'Calibri';
 }
 
 #infoTable .btnDownload {
@@ -48,6 +49,7 @@
     border-radius: 8px;
     border: 0.5px solid transparent;
     margin-left: 10px;
+    cursor: pointer;
 }
 
 #infoTable .btnDelete {
@@ -58,4 +60,5 @@
     border-radius: 8px;
     border: 0.5px solid transparent;
     margin: 10px;
+    cursor: pointer;
 }
