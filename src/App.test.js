@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import 'text-encoding';
 import 'util';
 import App from './App';
 test('renders learn react link', () => {
