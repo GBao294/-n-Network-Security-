@@ -5,9 +5,13 @@ import { database } from "../firebase-config";
 function Content() {
   let Images = [];
   //Lấy dữ liệu từ Database
+<<<<<<< HEAD
   // eslint-disable-next-line no-useless-concat
   var getImage = ref(database, 'ImageInformation/Image');
 
+=======
+  var getImage = ref(database, 'ImageInformation/Image');
+>>>>>>> 2a6e247fc361a446b26ea2f53128bd98a46a6efb
   onValue(getImage, (snapshot) =>{
     snapshot.forEach(childSnapshot => {
         let Key = childSnapshot.key;
@@ -45,5 +49,9 @@ function Content() {
       </div>
     );
 }
+<<<<<<< HEAD
 export { Content };
 
+=======
+export {Content}
+>>>>>>> 2a6e247fc361a446b26ea2f53128bd98a46a6efb
