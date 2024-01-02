@@ -1,9 +1,8 @@
-import '../Styles/Upload.css';
-import { useState } from "react";
-import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
-import { database } from '../firebase-config';
 import { ref as dbRef, push } from 'firebase/database';
-import { app } from '../firebase-config';
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { useState } from "react";
+import '../Styles/Upload.css';
+import { app, database } from '../firebase-config';
 
 function Upload() {
   const storage = getStorage(app)
@@ -60,7 +59,7 @@ function Upload() {
   return (
     <div id="uploadMain">
       <div className="imgContainer">
-        <img className="imgUpload" />
+      <img className="imgUpload" alt="" />
       </div>
       <input className='imgChosen' type="file" required onChange={handleImageUpload} />
       <p className='uploadtxt'>Nội dung ảnh</p>
