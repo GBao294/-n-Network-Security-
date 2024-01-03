@@ -1,10 +1,9 @@
+import { getAuth } from 'firebase/auth';
 import { ref as dbRef, push } from 'firebase/database';
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { getAuth } from 'firebase/auth';
-import { useState } from "react";
+import React, { useContext, useState } from 'react';
 import '../Styles/Upload.css';
 import { app, database } from '../firebase-config';
-import React, { useContext } from 'react';
 import { UserContext } from './UserContext';
 
 function Upload() {
@@ -17,7 +16,14 @@ function Upload() {
   const {uid} = auth.currentUser;
   const [content, setContent] = useState('');
 
-  //Chọn file ảnh
+  // Function to decode user.key into UID and role
+  const decodeUserKey = (key) => {
+    const decodedKey = atob(key);
+    const [uid, role] = decodedKey.split('-');
+    return { uid, role };
+  };
+
+  // Chọn file ảnh
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -31,29 +37,32 @@ function Upload() {
     }
   };
 
-  //Lấy dữ liệu nội dung ảnh
+  // Lấy dữ liệu nội dung ảnh
   const handleContent = (event) => {
     setContent(event.target.value);
   };
 
- //Đăng ảnh và nội dung
- const handleUpload = () => {
+  // Đăng ảnh và nội dung
+  const handleUpload = () => {
     if (selectedImage) {
       const imageName = selectedImage.name;
       const storageRef = ref(storage, `IMG-netsec/${imageName}`);
       uploadBytes(storageRef, selectedImage)
         .then(() => {
-          if(content !== ""){
-          alert("Tệp tin đã được tải lên thành công!");
-          getDownloadURL(storageRef)
-          .then((url) => {
-                const newImg = {
+          if (content !== "") {
+            alert("Tệp tin đã được tải lên thành công!");
+            getDownloadURL(storageRef)
+              .then((url) => {
+                // Decode user.key and check role
+                const {role } = decodeUserKey(user.key);
+                if (role === 'admin') {
+                  const newImg = {
                     imgSrc: url,
                     content: content,
-                };
-                push(imgDatabase, newImg);
+                  };
+                  push(imgDatabase, newImg);
 
-                //Lưu hành động vào log
+                    //Lưu hành động vào log
                 const currentTime = new Date();
                 const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
                 const newAction = {
@@ -62,32 +71,41 @@ function Upload() {
                   user: uid,
                 };
                 push(LogDatabase, newAction);
-          })
-          }else{
+                } else {
+                  alert("Bạn không có quyền truy cập tính năng này.");
+                }
+              })
+          } else {
             alert("Vui lòng nhập nội dung cho ảnh!");
           }
         })
         .catch((error) => {
-            alert("Lỗi trong quá trình tải lên tệp tin:", error);
+          alert("Lỗi trong quá trình tải lên tệp tin:", error);
         });
     }
   };
-  if (!user || user.role !== 'admin') {
-    return <p>Chỉ có admin mới có quyền truy cập tính năng này.</p>;
-  }
-  else {
-  return (
-    <div id="uploadMain">
-      <div className="imgContainer">
-      <img className="imgUpload" alt="" />
+  if (!user || decodeUserKey(user.key).role !== 'admin') {
+    return (
+      <div>
+        <p>Chỉ có admin mới có quyền truy cập tính năng này.</p>
+        {/* {user && <p>User Key: {user.key}</p>}
+        {user && <p>User Role: {decodeUserKey(user.key).role}</p>} */}
       </div>
-      <input className='imgChosen' type="file" required onChange={handleImageUpload} />
-      <p className='uploadtxt'>Nội dung ảnh</p>
-      <input className='contentInput' type='text' required onChange={handleContent} />
-      <button className='uploadBtn' onClick={() => handleUpload()}>UPLOAD</button>
-    </div>
-  );
+    );
+  } else {
+    return (
+      <div id="uploadMain">
+        <div className="imgContainer">
+          <img className="imgUpload" alt="" />
+        </div>
+        <input className='imgChosen' type="file" required onChange={handleImageUpload} />
+        <p className='uploadtxt'>Nội dung ảnh</p>
+        <input className='contentInput' type='text' required onChange={handleContent} />
+        <button className='uploadBtn' onClick={() => handleUpload()}>UPLOAD</button>
+      </div>
+    );
   }
 }
 
 export { Upload };
+

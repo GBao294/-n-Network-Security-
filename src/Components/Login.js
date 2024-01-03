@@ -1,12 +1,11 @@
-import React, { useState, useContext } from 'react';
-import '../Styles/register.css';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { database } from '../firebase-config';
 import { push, ref } from 'firebase/database';
-import { db, auth } from "../firebase-config";
-import { useNavigate } from 'react-router-dom';
-import { UserContext } from './UserContext';
 import { doc, getDoc } from 'firebase/firestore';
+import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../Styles/register.css';
+import { auth, database, db } from '../firebase-config';
+import { UserContext } from './UserContext';
 
 const SignIn = () => {
     const LogDatabase = ref(database, 'LogHistory/Log');
@@ -34,6 +33,7 @@ const SignIn = () => {
                 return { userId, userDoc };
             });
         })
+        
         .then(({ userId, userDoc }) => {
             let userRole = 'user';
             if (userDoc.exists()) {
@@ -42,14 +42,21 @@ const SignIn = () => {
                     userRole = 'admin';
                 }
             }
-            const userInfo = { uid: userId, role: userRole };
-            localStorage.setItem('user', JSON.stringify(userInfo)); // Lưu vào localStorage
-            setUser(userInfo); // Cập nhật trạng thái người dùng trong UserContext
+
+            // Concatenate uid and role before encoding to Base64
+            const userKey = `${userId}-${userRole}`;
+
+            // Base64 encoding for the concatenated key
+            const encodedKey = btoa(userKey);
+
+            const userInfo = { key: encodedKey }; //uid: userId, role: userRole, 
+            localStorage.setItem('user', JSON.stringify(userInfo)); // Save to localStorage
+            setUser(userInfo); // Update user status in UserContext
             navigate('/Home');
         })
         .catch((error) => {
-            console.error('Lỗi đăng nhập:', error);
-            setError(error.message); // Hiển thị thông báo lỗi
+            console.error('Login error:', error);
+            setError(error.message); // Display error message
         });
     };
 
@@ -58,7 +65,6 @@ const SignIn = () => {
             <title>NerdyGrooves Login</title>
             <div>
                 <section>
-                    {/* <div className="background2"></div> */}
                     <div className="form-box form2">
                         <div className="button-box">
                             <div className="form-value">
@@ -96,4 +102,4 @@ const SignIn = () => {
     );
 }
 
-export  default SignIn;
+export default SignIn;
