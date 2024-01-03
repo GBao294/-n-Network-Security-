@@ -7,6 +7,7 @@ function TopMenu (){
           <li className='Photo'><Link to="/Home"><p>PHOTO</p></Link></li>
           <li><Link to="/Upload"><p>UPLOAD</p></Link></li>
           <li><Link to="/Settings"><p>SETTINGS</p></Link></li>
+          <li><Link to="/Log"><p>LOG HISTORY</p></Link></li>
         </ul>
     </div>
     )

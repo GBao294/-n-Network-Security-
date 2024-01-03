@@ -2,9 +2,12 @@ import React, {useState} from 'react';
 import '../Styles/register.css';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import {auth} from "../firebase-config";
+import { database } from '../firebase-config';
+import { push, ref } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
+    const LogDatabase = ref(database, 'LogHistory/Log');
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -14,14 +17,22 @@ const SignIn = () => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
-            console.log(userCredential);
+            //Lưu hành động vào log
+            const currentTime = new Date();
+            const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
+            const newAction = {
+             time: formattedTime,
+             action: `Tài khoản "${email}" đăng nhập`,
+             user: "",
+            };
+            push(LogDatabase, newAction);
             navigate('/Home');
-          })
+        })
           .catch((error) => {
             console.log(error);
             setError(error.message);
-          });
-      };
+        });
+    };
 
     return (
         <div>

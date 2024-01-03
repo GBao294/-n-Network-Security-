@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import '../Styles/register.css';
 import { auth } from '../firebase-config';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword  } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { database } from '../firebase-config';
 import { ref,set } from 'firebase/database';

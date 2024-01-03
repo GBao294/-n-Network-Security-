@@ -1,12 +1,16 @@
-import { onValue, ref, remove } from "firebase/database";
+import { onValue, ref, remove, push } from "firebase/database";
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import "../Styles/Settings.css";
 import { database } from "../firebase-config";
 
 function Settings() {
+  const LogDatabase = ref(database, 'LogHistory/Log');
   let Images = [];
+  const auth = getAuth();
+  const {uid} = auth.currentUser;
+
   //Lấy dữ liệu từ Database
-  // eslint-disable-next-line no-useless-concat
   var getImage = ref(database, 'ImageInformation/Image');
   onValue(getImage, (snapshot) =>{
     snapshot.forEach(childSnapshot => {
@@ -22,12 +26,22 @@ function Settings() {
    })
    
   //Xử lý download
-  const handleDownload = (imageSrc) => {
+  const handleDownload = (imageSrc, id) => {
     const link = document.createElement("a");
     link.href = imageSrc;
     link.download = "image.jpg";
     link.target = "_blank";
     link.click();
+
+    //Lưu hành động vào log
+    const currentTime = new Date();
+    const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
+    const newAction = {
+      time: formattedTime,
+      action: `Tải 1 ảnh về máy. ID của ảnh được tải: ${id}`,
+      user: uid,
+    };
+    push(LogDatabase, newAction);
   };
 
   //Xử lý delete
@@ -37,6 +51,16 @@ function Settings() {
     updatedList.splice(id, 1);
     setImageList(updatedList);
     remove(ref(database, `ImageInformation/Image/${id}`));
+
+    //Lưu hành động vào log
+    const currentTime = new Date();
+    const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
+    const newAction = {
+      time: formattedTime,
+      action: `Xóa 1 ảnh khỏi database. ID ảnh bị xóa: ${id}`,
+      user: uid,
+    };
+    push(LogDatabase, newAction);
   };
 
     return (
@@ -57,7 +81,7 @@ function Settings() {
               </td>
               <td className="rowContent">{image?.content}</td>
               <td>
-                <button className="btnDownload" onClick={() => handleDownload(image?.imgSrc)}>Download</button>
+                <button className="btnDownload" onClick={() => handleDownload(image?.imgSrc, image?.id)}>Download</button>
                 <button className="btnDelete" onClick={() => handleDelete(image?.id)}>Delete</button>
               </td>
             </tr>

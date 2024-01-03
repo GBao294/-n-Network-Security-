@@ -1,5 +1,6 @@
 import { ref as dbRef, push } from 'firebase/database';
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getAuth } from 'firebase/auth';
 import { useState } from "react";
 import '../Styles/Upload.css';
 import { app, database } from '../firebase-config';
@@ -8,6 +9,9 @@ function Upload() {
   const storage = getStorage(app)
   const [selectedImage, setSelectedImage] = useState(null);
   const imgDatabase = dbRef(database, 'ImageInformation/Image');
+  const LogDatabase = dbRef(database, 'LogHistory/Log');
+  const auth = getAuth();
+  const {uid} = auth.currentUser;
   const [content, setContent] = useState('');
 
   //Chọn file ảnh
@@ -45,7 +49,17 @@ function Upload() {
                     content: content,
                 };
                 push(imgDatabase, newImg);
-            })
+
+                //Lưu hành động vào log
+                const currentTime = new Date();
+                const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
+                const newAction = {
+                  time: formattedTime,
+                  action: `Đăng tải 1 ảnh lên database.`,
+                  user: uid,
+                };
+                push(LogDatabase, newAction);
+          })
           }else{
             alert("Vui lòng nhập nội dung cho ảnh!");
           }

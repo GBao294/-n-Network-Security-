@@ -7,7 +7,9 @@ import SignIn from './Components/Login';
 import { Content } from './Components/Content';
 import { Settings } from './Components/Settings';
 import { Upload } from './Components/Upload.js';
+import { Log } from './Components/Log.js';
 // import "./ImageDatabase.js";
+import "./LogDatabase.js";
 
 function App() {
 
@@ -35,6 +37,13 @@ function App() {
       {<>
       <TopMenu />
       <Upload />
+      </>
+      } />
+
+      <Route path="/Log" element=
+      {<>
+      <TopMenu />
+      <Log />
       </>
       } />
 
