@@ -1,24 +1,20 @@
 import { onValue, ref, remove, push } from "firebase/database";
 import { getAuth } from "firebase/auth";
-import { useState } from "react";
-import "../Styles/Settings.css";
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from "react";
 import { database } from "../firebase-config";
-import { ref, onValue, remove } from "firebase/database";
 import "../Styles/Settings.css";
 import { UserContext } from './UserContext';
 
 function Settings() {
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const [imageList, setImageList] = useState([]);
   const LogDatabase = ref(database, 'LogHistory/Log');
   const auth = getAuth();
   const {uid} = auth.currentUser;
+  let images = [];
 
-  useEffect(() => {
     const getImage = ref(database, 'ImageInformation/Image');
     onValue(getImage, (snapshot) => {
-      const images = [];
       snapshot.forEach(childSnapshot => {
         let key = childSnapshot.key;
         let data = childSnapshot.val();
@@ -29,7 +25,6 @@ function Settings() {
         });
     })
    })
-  })
 
   //Xử lý download
   const handleDownload = (imageSrc, id) => {
@@ -53,7 +48,7 @@ function Settings() {
   // Xử lý delete
   const handleDelete = (id) => {
     const updatedList = imageList.filter(image => image.id !== id);
-    setImageList(updatedList);
+      setImageList(updatedList);
     remove(ref(database, `ImageInformation/Image/${id}`));
 
     //Lưu hành động vào log
@@ -78,7 +73,7 @@ function Settings() {
           </tr>
         </thead>
         <tbody>
-          {imageList.map((image, index) => (
+          {images.map((image, index) => (
             <tr key={index}>
               <td>
                 <img className="picture" src={image.imgSrc} alt="Ảnh" />
@@ -86,9 +81,7 @@ function Settings() {
               <td className="rowContent">{image.content}</td>
               <td>
                 <button className="btnDownload" onClick={() => handleDownload(image.imgSrc,image?.id)}>Download</button>
-                {user && user.role === 'admin' && (
-                  <button className="btnDelete" onClick={() => handleDelete(image.id)}>Delete</button>
-                )}
+                <button className="btnDelete" onClick={() => handleDelete(image.id)}>Delete</button>
               </td>
             </tr>
           ))}
