@@ -2,29 +2,35 @@ import { onValue, ref, remove, push } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import "../Styles/Settings.css";
+import React, { useState, useEffect, useContext } from 'react';
 import { database } from "../firebase-config";
+import { ref, onValue, remove } from "firebase/database";
+import "../Styles/Settings.css";
+import { UserContext } from './UserContext';
 
 function Settings() {
+  const { user } = useContext(UserContext);
+  const [imageList, setImageList] = useState([]);
   const LogDatabase = ref(database, 'LogHistory/Log');
-  let Images = [];
   const auth = getAuth();
   const {uid} = auth.currentUser;
 
-  //Lấy dữ liệu từ Database
-  var getImage = ref(database, 'ImageInformation/Image');
-  onValue(getImage, (snapshot) =>{
-    snapshot.forEach(childSnapshot => {
-        let Key = childSnapshot.key;
+  useEffect(() => {
+    const getImage = ref(database, 'ImageInformation/Image');
+    onValue(getImage, (snapshot) => {
+      const images = [];
+      snapshot.forEach(childSnapshot => {
+        let key = childSnapshot.key;
         let data = childSnapshot.val();
-        Images.push(
-        {
-            "id": Key,
-            "imgSrc": data.imgSrc,
-            "content": data.content 
+        images.push({
+          "id": key,
+          "imgSrc": data.imgSrc,
+          "content": data.content
         });
     })
    })
-   
+  })
+
   //Xử lý download
   const handleDownload = (imageSrc, id) => {
     const link = document.createElement("a");
@@ -44,11 +50,9 @@ function Settings() {
     push(LogDatabase, newAction);
   };
 
-  //Xử lý delete
-  const [imageList, setImageList] = useState(Images);
+  // Xử lý delete
   const handleDelete = (id) => {
-    const updatedList = [...imageList];
-    updatedList.splice(id, 1);
+    const updatedList = imageList.filter(image => image.id !== id);
     setImageList(updatedList);
     remove(ref(database, `ImageInformation/Image/${id}`));
 
@@ -63,34 +67,36 @@ function Settings() {
     push(LogDatabase, newAction);
   };
 
-    return (
-      <div>
-        <table id="infoTable">
+  return (
+    <div>
+      <table id="infoTable">
         <thead>
           <tr>
-            <th class="imgSrc">Ảnh</th>
-            <th class="content">Nội dung</th>
+            <th className="imgSrc">Ảnh</th>
+            <th className="content">Nội dung</th>
             <th className="settings"></th>
           </tr>
         </thead>
         <tbody>
-        {Images && Images.map((image, index) => (
+          {imageList.map((image, index) => (
             <tr key={index}>
               <td>
-                <img className="picture" src={image?.imgSrc} alt="Ảnh" />
+                <img className="picture" src={image.imgSrc} alt="Ảnh" />
               </td>
-              <td className="rowContent">{image?.content}</td>
+              <td className="rowContent">{image.content}</td>
               <td>
-                <button className="btnDownload" onClick={() => handleDownload(image?.imgSrc, image?.id)}>Download</button>
-                <button className="btnDelete" onClick={() => handleDelete(image?.id)}>Delete</button>
+                <button className="btnDownload" onClick={() => handleDownload(image.imgSrc,image?.id)}>Download</button>
+                {user && user.role === 'admin' && (
+                  <button className="btnDelete" onClick={() => handleDelete(image.id)}>Delete</button>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
       <div className="space"></div>
-      </div>
-    );
+    </div>
+  );
 }
-export { Settings };
 
+export { Settings };

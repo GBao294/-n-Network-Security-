@@ -4,8 +4,11 @@ import { getAuth } from 'firebase/auth';
 import { useState } from "react";
 import '../Styles/Upload.css';
 import { app, database } from '../firebase-config';
+import React, { useContext } from 'react';
+import { UserContext } from './UserContext';
 
 function Upload() {
+  const { user } = useContext(UserContext);
   const storage = getStorage(app)
   const [selectedImage, setSelectedImage] = useState(null);
   const imgDatabase = dbRef(database, 'ImageInformation/Image');
@@ -69,7 +72,10 @@ function Upload() {
         });
     }
   };
-
+  if (!user || user.role !== 'admin') {
+    return <p>Chỉ có admin mới có quyền truy cập tính năng này.</p>;
+  }
+  else {
   return (
     <div id="uploadMain">
       <div className="imgContainer">
@@ -81,6 +87,7 @@ function Upload() {
       <button className='uploadBtn' onClick={() => handleUpload()}>UPLOAD</button>
     </div>
   );
+  }
 }
 
 export { Upload };

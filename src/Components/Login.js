@@ -1,10 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState, useContext } from 'react';
 import '../Styles/register.css';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import {auth} from "../firebase-config";
 import { database } from '../firebase-config';
 import { push, ref } from 'firebase/database';
+import { db, auth } from "../firebase-config";
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext';
+import { doc, getDoc } from 'firebase/firestore';
 
 const SignIn = () => {
     const LogDatabase = ref(database, 'LogHistory/Log');
@@ -12,11 +15,13 @@ const SignIn = () => {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const [error, setError] = useState("");
+    const { setUser } = useContext(UserContext);
 
     const signIn = (e) => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
+        .then((userCredential) => {
+            const userId = userCredential.user.uid;
             //Lưu hành động vào log
             const currentTime = new Date();
             const formattedTime = `${currentTime.toLocaleDateString()} ${currentTime.toLocaleTimeString()}`;
@@ -26,11 +31,26 @@ const SignIn = () => {
              user: "",
             };
             push(LogDatabase, newAction);
+            return getDoc(doc(db, 'users', userId)).then(userDoc => {
+                return { userId, userDoc };
+            });
+        })
+        .then(({ userId, userDoc }) => {
+            let userRole = 'user';
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                if (userData.role === 'admin') {
+                    userRole = 'admin';
+                }
+            }
+            const userInfo = { uid: userId, role: userRole };
+            localStorage.setItem('user', JSON.stringify(userInfo)); // Lưu vào localStorage
+            setUser(userInfo); // Cập nhật trạng thái người dùng trong UserContext
             navigate('/Home');
         })
-          .catch((error) => {
-            console.log(error);
-            setError(error.message);
+        .catch((error) => {
+            console.error('Lỗi đăng nhập:', error);
+            setError(error.message); // Hiển thị thông báo lỗi
         });
     };
 
